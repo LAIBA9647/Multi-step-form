@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form - All 5 Steps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f6ff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #022959;
+        }
+
+        .form-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 25px 40px -20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: 600px;
+            position: relative;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            position: relative;
+            width: 274px;
+            background: linear-gradient(135deg, #683fea 0%, #bf60e5 100%);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            border-radius: 0 15px 15px 0;
+            overflow: hidden;
+        }
+
+        /* Step Navigation */
+        .step-nav {
+            margin-bottom: 32px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            color: white;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-item.active {
+            opacity: 1;
+        }
+
+        .step-item.completed {
+            opacity: 1;
+        }
+
+        .step-number {
+            width: 33px;
+            height: 33px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active .step-number {
+            background: #bfe7fd;
+            color: #022959;
+            border-color: #bfe7fd;
+        }
+
+        .step-item.completed .step-number {
+            background: #bfe7fd;
+            color: #022959;
+            border-color: #bfe7fd;
+        }
+
+        .step-info {
+            flex: 1;
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Right Form Section */
+        .form-content {
+            flex: 1;
+            padding: 56px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Step Content */
+        .step-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Headers */
+        .form-header {
+            margin-bottom: 35px;
+        }
+
+        .form-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #022959;
+            margin-bottom: 11px;
+        }
+
+        .form-header p {
+            font-size: 16px;
+            color: #9699aa;
+            line-height: 1.5;
+        }
+
+        /* Form Fields */
+        .form-fields {
+            max-width: 450px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #022959;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 16px;
+            border: 1px solid #d6d9e6;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+            color: #022959;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #483eff;
+            box-shadow: 0 0 0 1px #483eff;
+        }
+
+        .form-group input::placeholder {
+            color: #9699aa;
+            font-weight: 500;
+        }
+
+        .form-group.error input {
+            border-color: #ee374a;
+        }
+
+        .error-message {
+            display: block;
+            color: #ee374a;
+            font-size: 14px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* Plan Selection */
+        .plan-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .plan-option {
+            border: 1px solid #d6d9e6;
+            border-radius: 8px;
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .plan-option:hover {
+            border-color: #483eff;
+        }
+
+        .plan-option.selected {
+            border-color: #483eff;
+            background: #f8f9fe;
+        }
+
+        .plan-option input[type="radio"] {
+            display: none;
+        }
+
+        .plan-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 39px;
+        }
+
+        .plan-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .plan-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #022959;
+            margin-bottom: 6px;
+        }
+
+        .plan-price {
+            font-size: 14px;
+            color: #9699aa;
+            margin-bottom: 6px;
+        }
+
+        .plan-discount {
+            font-size: 12px;
+            color: #022959;
+            font-weight: 500;
+            display: none;
+        }
+
+        .plan-discount.show {
+            display: block;
+        }
+
+        /* Billing Toggle */
+        .billing-toggle {
+            background: #f8f9fe;
+            border-radius: 8px;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .billing-option {
+            font-size: 14px;
+            font-weight: 700;
+            color: #9699aa;
+            transition: color 0.3s ease;
+        }
+
+        .billing-option.active {
+            color: #022959;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 38px;
+            height: 20px;
+            background: #022959;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(18px);
+        }
+
+        /* Add-ons */
+        .addon-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .addon-option {
+            border: 1px solid #d6d9e6;
+            border-radius: 8px;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .addon-option:hover {
+            border-color: #483eff;
+        }
+
+        .addon-option.selected {
+            border-color: #483eff;
+            background: #f8f9fe;
+        }
+
+        .addon-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #483eff;
+        }
+
+        .addon-info {
+            flex: 1;
+        }
+
+        .addon-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #022959;
+            margin-bottom: 6px;
+        }
+
+        .addon-description {
+            font-size: 14px;
+            color: #9699aa;
+        }
+
+        .addon-price {
+            font-size: 14px;
+            color: #483eff;
+            font-weight: 500;
+        }
+
+        /* Summary */
+        .summary-container {
+            background: #f8f9fe;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .summary-plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #d6d9e6;
+            margin-bottom: 24px;
+        }
+
+        .plan-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #022959;
+            margin-bottom: 6px;
+        }
+
+        .change-link {
+            font-size: 14px;
+            color: #9699aa;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .plan-cost {
+            font-size: 16px;
+            font-weight: 700;
+            color: #022959;
+        }
+
+        .summary-addons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .summary-addon {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .addon-name-summary {
+            font-size: 14px;
+            color: #9699aa;
+        }
+
+        .addon-price-summary {
+            font-size: 14px;
+            color: #022959;
+        }
+
+        .total-section {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 14px;
+            color: #9699aa;
+        }
+
+        .total-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #483eff;
+        }
+
+        /* Thank You Step */
+        .thank-you-content {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .thank-you-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 32px;
+            background: #483eff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thank-you-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .thank-you-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #022959;
+            margin-bottom: 14px;
+        }
+
+        .thank-you-message {
+            font-size: 16px;
+            color: #9699aa;
+            line-height: 1.5;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            position: absolute;
+            bottom: 32px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: #9699aa;
+            font-weight: 500;
+        }
+
+        .btn-back:hover {
+            color: #022959;
+        }
+
+        .btn-next {
+            background: #022959;
+            color: white;
+            margin-left: auto;
+        }
+
+        .btn-next:hover {
+            background: #164a8a;
+        }
+
+        .btn-confirm {
+            background: #483eff;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #928cff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-container {
+                flex-direction: column;
+                max-width: 100%;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-radius: 0;
+                padding: 32px 24px;
+                min-height: 172px;
+            }
+            
+            .form-content {
+                padding: 32px 24px 100px;
+                flex: 1;
+            }
+            
+            .form-header h1 {
+                font-size: 24px;
+            }
+            
+            .step-nav {
+                display: flex;
+                justify-content: center;
+                gap: 16px;
+                margin-bottom: 0;
+            }
+            
+            .step-item {
+                flex-direction: column;
+                text-align: center;
+                margin-bottom: 0;
+                gap: 8px;
+            }
+            
+            .step-number {
+                margin-right: 0;
+            }
+            
+            .step-label {
+                display: none;
+            }
+            
+            .step-title {
+                font-size: 12px;
+            }
+            
+            .plan-options {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .plan-option {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 14px 16px;
+            }
+            
+            .plan-icon {
+                margin-bottom: 0;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .form-actions {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 16px 24px;
+                box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            
+            .form-content {
+                padding: 24px 16px 100px;
+            }
+            
+            .form-actions {
+                padding: 16px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- Left Sidebar with Step Navigation -->
+        <div class="sidebar">
+            <div class="step-nav">
+                <div class="step-item active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <div class="step-label">Step 1</div>
+                        <div class="step-title">Your Info</div>
+                    </div>
+                </div>
+                <div class="step-item" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <div class="step-label">Step 2</div>
+                        <div class="step-title">Select Plan</div>
+                    </div>
+                </div>
+                <div class="step-item" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <div class="step-label">Step 3</div>
+                        <div class="step-title">Add-ons</div>
+                    </div>
+                </div>
+                <div class="step-item" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-info">
+                        <div class="step-label">Step 4</div>
+                        <div class="step-title">Summary</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form Section -->
+        <div class="form-content">
+            <!-- Step 1: Personal Info -->
+            <div class="step-content active" id="step-1">
+                <div class="form-header">
+                    <h1>Personal Info</h1>
+                    <p>Please provide your name, email address, and phone number.</p>
+                </div>
+                
+                <form class="form-fields">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" value="Vanessa Mint" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="vanessamint@" required>
+                    </div>
+                    
+                    <div class="form-group error">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="e.g. +1 234 567 890" required>
+                        <span class="error-message">This field is required</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Select Plan -->
+            <div class="step-content" id="step-2">
+                <div class="form-header">
+                    <h1>Select your plan</h1>
+                    <p>You have the option of monthly or yearly billing.</p>
+                </div>
+                
+                <div class="plan-options">
+                    <div class="plan-option" data-plan="arcade">
+                        <input type="radio" name="plan" value="arcade" id="arcade">
+                        <div class="plan-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                                <rect width="40" height="40" rx="10" fill="#FFAF7E"/>
+                                <path d="M24.038 12.22c1.46 0 2.647 1.188 2.647 2.647v1.411a2.655 2.655 0 0 1-2.647 2.647H16.412a2.655 2.655 0 0 1-2.647-2.647v-1.411a2.655 2.655 0 0 1 2.647-2.647h7.626zm-7.626 1.294a1.353 1.353 0 0 0-1.353 1.353v1.411a1.353 1.353 0 0 0 1.353 1.353h7.626a1.353 1.353 0 0 0 1.353-1.353v-1.411a1.353 1.353 0 0 0-1.353-1.353H16.412z" fill="white"/>
+                                <path d="M20.176 15.882a.647.647 0 0 1 .647.647v1.294a.647.647 0 0 1-1.294 0v-1.294a.647.647 0 0 1 .647-.647z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="plan-name">Arcade</div>
+                        <div class="plan-price">$9/mo</div>
+                        <div class="plan-discount">2 months free</div>
+                    </div>
+                    
+                    <div class="plan-option" data-plan="advanced">
+                        <input type="radio" name="plan" value="advanced" id="advanced">
+                        <div class="plan-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                                <rect width="40" height="40" rx="10" fill="#F9818E"/>
+                                <path d="M20 12c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" fill="white"/>
+                                <path d="M20 16c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="plan-name">Advanced</div>
+                        <div class="plan-price">$12/mo</div>
+                        <div class="plan-discount">2 months free</div>
+                    </div>
+                    
+                    <div class="plan-option" data-plan="pro">
+                        <input type="radio" name="plan" value="pro" id="pro">
+                        <div class="plan-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                                <rect width="40" height="40" rx="10" fill="#483EFF"/>
+                                <path d="M20 12c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" fill="white"/>
+                                <path d="M20 16c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="plan-name">Pro</div>
+                        <div class="plan-price">$15/mo</div>
+                        <div class="plan-discount">2 months free</div>
+                    </div>
+                </div>
+                
+                <div class="billing-toggle">
+                    <span class="billing-option active">Monthly</span>
+                    <div class="toggle-switch" id="billing-toggle">
+                        <input type="checkbox" id="yearly-billing" style="display: none;">
+                    </div>
+                    <span class="billing-option">Yearly</span>
+                </div>
+            </div>
+
+            <!-- Step 3: Pick Add-ons -->
+            <div class="step-content" id="step-3">
+                <div class="form-header">
+                    <h1>Pick add-ons</h1>
+                    <p>Add-ons help enhance your gaming experience.</p>
+                </div>
+                
+                <div class="addon-options">
+                    <div class="addon-option" data-addon="online-service">
+                        <input type="checkbox" id="online-service" name="addons[]" value="online-service">
+                        <div class="addon-info">
+                            <div class="addon-name">Online service</div>
+                            <div class="addon-description">Access to multiplayer games</div>
+                        </div>
+                        <div class="addon-price">+$1/mo</div>
+                    </div>
+                    
+                    <div class="addon-option" data-addon="larger-storage">
+                        <input type="checkbox" id="larger-storage" name="addons[]" value="larger-storage">
+                        <div class="addon-info">
+                            <div class="addon-name">Larger storage</div>
+                            <div class="addon-description">Extra 1TB of cloud save</div>
+                        </div>
+                        <div class="addon-price">+$2/mo</div>
+                    </div>
+                    
+                    <div class="addon-option" data-addon="customizable-profile">
+                        <input type="checkbox" id="customizable-profile" name="addons[]" value="customizable-profile">
+                        <div class="addon-info">
+                            <div class="addon-name">Customizable Profile</div>
+                            <div class="addon-description">Custom theme on your profile</div>
+                        </div>
+                        <div class="addon-price">+$2/mo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Finishing Up -->
+            <div class="step-content" id="step-4">
+                <div class="form-header">
+                    <h1>Finishing up</h1>
+                    <p>Double-check everything looks OK before confirming.</p>
+                </div>
+                
+                <div class="summary-container">
+                    <div class="summary-plan">
+                        <div class="plan-details">
+                            <h3>Arcade (Monthly)</h3>
+                            <span class="change-link">Change</span>
+                        </div>
+                        <div class="plan-cost">$9/mo</div>
+                    </div>
+                    
+                    <div class="summary-addons">
+                        <div class="summary-addon">
+                            <span class="addon-name-summary">Online service</span>
+                            <span class="addon-price-summary">+$1/mo</span>
+                        </div>
+                        <div class="summary-addon">
+                            <span class="addon-name-summary">Larger storage</span>
+                            <span class="addon-price-summary">+$2/mo</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="total-section">
+                    <span class="total-label">Total (per month)</span>
+                    <span class="total-amount">+$12/mo</span>
+                </div>
+            </div>
+
+            <!-- Step 5: Thank You -->
+            <div class="step-content" id="step-5">
+                <div class="thank-you-content">
+                    <div class="thank-you-icon"></div>
+                    <h1 class="thank-you-title">Thank you!</h1>
+                    <p class="thank-you-message">Thanks for confirming your subscription! We hope you have fun using our platform. If you ever need support, please feel free to email us at support@loremgaming.com.</p>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-back" id="backBtn" style="display: none;">Go Back</button>
+                <button type="button" class="btn btn-next" id="nextBtn">Next Step</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        jQuery(document).ready(function($) {
+            let currentStep = 1;
+            const totalSteps = 5;
+            let formData = {
+                name: 'Vanessa Mint',
+                email: 'vanessamint@',
+                phone: '',
+                plan: '',
+                billing: 'monthly',
+                addons: []
+            };
+            
+            // Initialize form
+            initForm();
+            
+            function initForm() {
+                updateStepDisplay();
+                setupEventListeners();
+                updateButtonText();
+                loadFormData();
+            }
+            
+            function setupEventListeners() {
+                // Next Step button
+                $('#nextBtn').on('click', function() {
+                    if (validateCurrentStep()) {
+                        if (currentStep < totalSteps) {
+                            currentStep++;
+                            updateStepDisplay();
+                            updateFormContent();
+                            updateButtonText();
+                        }
+                    }
+                });
+                
+                // Back button
+                $('#backBtn').on('click', function() {
+                    if (currentStep > 1) {
+                        currentStep--;
+                        updateStepDisplay();
+                        updateFormContent();
+                        updateButtonText();
+                    }
+                });
+                
+                // Plan selection
+                $('.plan-option').on('click', function() {
+                    $('.plan-option').removeClass('selected');
+                    $(this).addClass('selected');
+                    const plan = $(this).data('plan');
+                    formData.plan = plan;
+                    updateSummary();
+                });
+                
+                // Billing toggle
+                $('#billing-toggle').on('click', function() {
+                    $(this).toggleClass('active');
+                    $('.billing-option').toggleClass('active');
+                    formData.billing = $(this).hasClass('active') ? 'yearly' : 'monthly';
+                    updatePlanPrices();
+                    updateSummary();
+                });
+                
+                // Addon selection
+                $('.addon-option').on('click', function() {
+                    $(this).toggleClass('selected');
+                    const addon = $(this).data('addon');
+                    const checkbox = $(this).find('input[type="checkbox"]');
+                    
+                    if ($(this).hasClass('selected')) {
+                        checkbox.prop('checked', true);
+                        if (!formData.addons.includes(addon)) {
+                            formData.addons.push(addon);
+                        }
+                    } else {
+                        checkbox.prop('checked', false);
+                        formData.addons = formData.addons.filter(item => item !== addon);
+                    }
+                    updateSummary();
+                });
+                
+                // Form input validation
+                $('.form-group input').on('input blur', function() {
+                    validateField($(this));
+                    saveFormData();
+                });
+                
+                // Step navigation
+                $('.step-item').on('click', function() {
+                    const stepNumber = parseInt($(this).data('step'));
+                    if (stepNumber <= currentStep) {
+                        currentStep = stepNumber;
+                        updateStepDisplay();
+                        updateFormContent();
+                        updateButtonText();
+                    }
+                });
+                
+                // Change link in summary
+                $('.change-link').on('click', function() {
+                    currentStep = 2; // Go to plan selection
+                    updateStepDisplay();
+                    updateFormContent();
+                    updateButtonText();
+                });
+            }
+            
+            function updateStepDisplay() {
+                // Update step indicators
+                $('.step-item').removeClass('active completed');
+                $('.step-item').each(function(index) {
+                    const stepNumber = index + 1;
+                    if (stepNumber < currentStep) {
+                        $(this).addClass('completed');
+                    } else if (stepNumber === currentStep) {
+                        $(this).addClass('active');
+                    }
+                });
+                
+                // Show/hide step content
+                $('.step-content').removeClass('active');
+                $(`#step-${currentStep}`).addClass('active');
+            }
+            
+            function updateFormContent() {
+                // Update form content based on current step
+                switch(currentStep) {
+                    case 1:
+                        // Personal Info - already handled by template
+                        break;
+                    case 2:
+                        // Select Plan - already handled by template
+                        break;
+                    case 3:
+                        // Add-ons - already handled by template
+                        break;
+                    case 4:
+                        // Summary - update with current selections
+                        updateSummary();
+                        break;
+                    case 5:
+                        // Thank You - hide form actions
+                        $('.form-actions').hide();
+                        break;
+                }
+            }
+            
+            function updateButtonText() {
+                const $backBtn = $('#backBtn');
+                const $nextBtn = $('#nextBtn');
+                
+                // Show/hide back button
+                if (currentStep === 1) {
+                    $backBtn.hide();
+                } else {
+                    $backBtn.show();
+                }
+                
+                // Update next button text
+                if (currentStep === totalSteps - 1) {
+                    $nextBtn.text('Confirm');
+                    $nextBtn.removeClass('btn-next').addClass('btn-confirm');
+                } else if (currentStep === totalSteps) {
+                    $nextBtn.hide();
+                } else {
+                    $nextBtn.text('Next Step');
+                    $nextBtn.removeClass('btn-confirm').addClass('btn-next');
+                }
+            }
+            
+            function validateCurrentStep() {
+                let isValid = true;
+                
+                switch(currentStep) {
+                    case 1:
+                        isValid = validateStep1();
+                        break;
+                    case 2:
+                        isValid = validateStep2();
+                        break;
+                    case 3:
+                        isValid = validateStep3();
+                        break;
+                    case 4:
+                        isValid = validateStep4();
+                        break;
+                }
+                
+                return isValid;
+            }
+            
+            function validateStep1() {
+                let isValid = true;
+                
+                // Validate name
+                const name = $('#name').val().trim();
+                if (!name) {
+                    showFieldError('#name', 'This field is required');
+                    isValid = false;
+                } else {
+                    clearFieldError('#name');
+                    formData.name = name;
+                }
+                
+                // Validate email
+                const email = $('#email').val().trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email) {
+                    showFieldError('#email', 'This field is required');
+                    isValid = false;
+                } else if (!emailRegex.test(email)) {
+                    showFieldError('#email', 'Please enter a valid email address');
+                    isValid = false;
+                } else {
+                    clearFieldError('#email');
+                    formData.email = email;
+                }
+                
+                // Validate phone
+                const phone = $('#phone').val().trim();
+                if (!phone) {
+                    showFieldError('#phone', 'This field is required');
+                    isValid = false;
+                } else {
+                    clearFieldError('#phone');
+                    formData.phone = phone;
+                }
+                
+                return isValid;
+            }
+            
+            function validateStep2() {
+                if (!formData.plan) {
+                    alert('Please select a plan');
+                    return false;
+                }
+                return true;
+            }
+            
+            function validateStep3() {
+                // Add-ons are optional, so always valid
+                return true;
+            }
+            
+            function validateStep4() {
+                // Summary step is always valid
+                return true;
+            }
+            
+            function validateField($field) {
+                const fieldId = '#' + $field.attr('id');
+                const value = $field.val().trim();
+                
+                switch($field.attr('type')) {
+                    case 'email':
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (value && !emailRegex.test(value)) {
+                            showFieldError(fieldId, 'Please enter a valid email address');
+                        } else {
+                            clearFieldError(fieldId);
+                        }
+                        break;
+                    case 'tel':
+                        if (value && value.length < 10) {
+                            showFieldError(fieldId, 'Please enter a valid phone number');
+                        } else {
+                            clearFieldError(fieldId);
+                        }
+                        break;
+                    default:
+                        if (!value) {
+                            showFieldError(fieldId, 'This field is required');
+                        } else {
+                            clearFieldError(fieldId);
+                        }
+                }
+            }
+            
+            function showFieldError(fieldId, message) {
+                const $field = $(fieldId);
+                const $formGroup = $field.closest('.form-group');
+                
+                $formGroup.addClass('error');
+                let $errorMsg = $formGroup.find('.error-message');
+                
+                if ($errorMsg.length === 0) {
+                    $errorMsg = $('<span class="error-message"></span>');
+                    $formGroup.append($errorMsg);
+                }
+                
+                $errorMsg.text(message);
+            }
+            
+            function clearFieldError(fieldId) {
+                const $field = $(fieldId);
+                const $formGroup = $field.closest('.form-group');
+                
+                $formGroup.removeClass('error');
+                $formGroup.find('.error-message').remove();
+            }
+            
+            function updatePlanPrices() {
+                const isYearly = formData.billing === 'yearly';
+                const prices = {
+                    arcade: { monthly: 9, yearly: 90 },
+                    advanced: { monthly: 12, yearly: 120 },
+                    pro: { monthly: 15, yearly: 150 }
+                };
+                
+                $('.plan-option').each(function() {
+                    const plan = $(this).data('plan');
+                    const price = isYearly ? prices[plan].yearly : prices[plan].monthly;
+                    const period = isYearly ? '/yr' : '/mo';
+                    
+                    $(this).find('.plan-price').text(`$${price}${period}`);
+                    $(this).find('.plan-discount').toggleClass('show', isYearly);
+                });
+            }
+            
+            function updateSummary() {
+                if (!formData.plan) return;
+                
+                const planNames = {
+                    arcade: 'Arcade',
+                    advanced: 'Advanced',
+                    pro: 'Pro'
+                };
+                
+                const planPrices = {
+                    arcade: { monthly: 9, yearly: 90 },
+                    advanced: { monthly: 12, yearly: 120 },
+                    pro: { monthly: 15, yearly: 150 }
+                };
+                
+                const addonPrices = {
+                    'online-service': { monthly: 1, yearly: 10 },
+                    'larger-storage': { monthly: 2, yearly: 20 },
+                    'customizable-profile': { monthly: 2, yearly: 20 }
+                };
+                
+                const addonNames = {
+                    'online-service': 'Online service',
+                    'larger-storage': 'Larger storage',
+                    'customizable-profile': 'Customizable Profile'
+                };
+                
+                const isYearly = formData.billing === 'yearly';
+                const period = isYearly ? ' (Yearly)' : ' (Monthly)';
+                const planPrice = isYearly ? planPrices[formData.plan].yearly : planPrices[formData.plan].monthly;
+                
+                // Update plan summary
+                $('.summary-plan .plan-details h3').text(planNames[formData.plan] + period);
+                $('.summary-plan .plan-cost').text(`$${planPrice}/${isYearly ? 'yr' : 'mo'}`);
+                
+                // Update addons summary
+                let addonsHtml = '';
+                let totalAddons = 0;
+                
+                formData.addons.forEach(addon => {
+                    const addonPrice = isYearly ? addonPrices[addon].yearly : addonPrices[addon].monthly;
+                    totalAddons += addonPrice;
+                    addonsHtml += `
+                        <div class="summary-addon">
+                            <span class="addon-name-summary">${addonNames[addon]}</span>
+                            <span class="addon-price-summary">+$${addonPrice}/${isYearly ? 'yr' : 'mo'}</span>
+                        </div>
+                    `;
+                });
+                
+                $('.summary-addons').html(addonsHtml);
+                
+                // Update total
+                const total = planPrice + totalAddons;
+                const totalPeriod = isYearly ? 'per year' : 'per month';
+                $('.total-label').text(`Total (${totalPeriod})`);
+                $('.total-amount').text(`$${total}/${isYearly ? 'yr' : 'mo'}`);
+            }
+            
+            function loadFormData() {
+                // Load saved form data
+                $('#name').val(formData.name);
+                $('#email').val(formData.email);
+                $('#phone').val(formData.phone);
+                
+                // Set initial billing state
+                if (formData.billing === 'yearly') {
+                    $('#billing-toggle').addClass('active');
+                    $('.billing-option').toggleClass('active');
+                }
+                
+                updatePlanPrices();
+            }
+            
+            function saveFormData() {
+                // Save form data to localStorage or send to server
+                formData.name = $('#name').val();
+                formData.email = $('#email').val();
+                formData.phone = $('#phone').val();
+                
+                // You can save to localStorage here
+                // localStorage.setItem('multiStepFormData', JSON.stringify(formData));
+            }
+        });
+    </script>
+</body>
+</html> 
